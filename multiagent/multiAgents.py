@@ -246,15 +246,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in legalActions:
             successor = gameState.generateSuccessor(0, action)
             if numAgents == 1:
-                value = self.max(successor, 1)
+                value = self.max(successor, 1, alpha, beta)
             else:
-                value = self.min(successor, 0, 1)
+                value = self.min(successor, 0, 1, alpha, beta)
             if value > bestValue:
                 bestValue = value
                 bestAction = action
+            alpha = max(alpha, bestValue)
         
-        return bestAction        
-        util.raiseNotDefined()
+        return bestAction
+
     def min(self, gameState, depth, agentIndex, alpha, beta):
         if gameState.isWin() or gameState.isLose() or depth >= self.depth:
             return self.evaluationFunction(gameState)
@@ -268,13 +269,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in legalActions:
             successor = gameState.generateSuccessor(agentIndex, action)
             if agentIndex == numAgents - 1:
-                successorValue = self.max(successor, depth + 1)
+                successorValue = self.max(successor, depth + 1, alpha, beta)
             else:
-                successorValue = self.min(successor, depth, agentIndex + 1)
+                successorValue = self.min(successor, depth, agentIndex + 1, alpha, beta)
             value = min(value, successorValue)
+            if value < alpha:
+                return value
+            beta = min(beta, value)
         return value
-        util.raiseNotDefined()
-    def max(self, gameState, depth, agentIndex, alpha, beta):
+
+    def max(self, gameState, depth, alpha, beta):
         if gameState.isWin() or gameState.isLose() or depth >= self.depth:
             return self.evaluationFunction(gameState)
         
@@ -287,12 +291,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in legalActions:
             successor = gameState.generateSuccessor(0, action)
             if numAgents == 1:
-                successorValue = self.max(successor, depth + 1)
+                successorValue = self.max(successor, depth + 1, alpha, beta)
             else:
-                successorValue = self.min(successor, depth, 1)
+                successorValue = self.min(successor, depth, 1, alpha, beta)
             value = max(value, successorValue)
+            if value > beta:
+                return value
+            alpha = max(alpha, value)
         return value
-        util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
